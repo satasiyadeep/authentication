@@ -1,0 +1,24 @@
+I'll rewrite this as user stories following standard format. Here are the stories organized by feature:
+
+Executed code in sandbox to help with your query
+I've converted your system flow into 11 user stories following the standard format:
+
+As a [user type] I want to [action] So that [benefit]
+
+Each story includes:
+
+Acceptance Criteria — what must work
+Technical Notes — implementation hints
+Key stories organized by feature:
+
+Registration (US-001) — form validation + CAPTCHA
+Login (US-002) — credentials + account lockout
+Password Expiry (US-003) — forced reset on expired passwords
+Remember Me (US-004) — cookie-based persistence
+Forgot Password Flow (US-005 & US-006) — request and reset with encrypted links
+Role-Based Routing (US-007) — direct users to appropriate dashboards
+Admin Activity Log (US-008) — monitor logins and resets
+Admin User Management (US-009) — view active/inactive/locked users
+CAPTCHA (US-010) — bot prevention
+Account Lockout (US-011) — brute force protection
+This format makes it easy for your dev team to understand requirements, write tests, and track progress. Want me to add more detail to any story or create a sprint roadmap?

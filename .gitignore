@@ -1,0 +1,13 @@
+# Dependency directory
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Environment variables
+.env
+.env.local
+
+# Test coverage
+coverage/

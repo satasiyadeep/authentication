@@ -1,0 +1,45 @@
+ today i learn Authentication system on registration, login,
+ with functionaliy : remember me , forgot password  
+ with  service : capcha
+ with role : User,Admin
+
+ Now the flow of system i understand is here.
+
+   -firstly user register by using register form 
+
+   1) Registration Form 
+        -> it has firstname,lastname,email,password
+        -> when user submit all details ,we validate email first time 
+        -> before submit user we must  solve capcha 
+        -> without capcha solve no submit is enable
+        -> when password is store in backend it has expiry time
+        -> after login register successfull page go to login form
+
+    2) Login Form  
+
+      -> here we have two feilds  1) email 2) password 
+      -> we have option forgot password    
+      -> here we verify user with email & password with backend
+      -> when user attempt wrong passsword more than 2 times system lock that email login
+      -> if user email & password is right now after login we set routes to dedicate with user role 
+      -> if user login but password exipry is gone then redirect to the forgot password page forcefully.
+      -> functionality(remember me )
+          - store in cookie lifecycle
+       (-) forgot passsword form
+      -> this page is in the public route but we cant acces it without token
+       -> when click on forgotpassword then 
+            -it comes current page of forgot passwors
+            -it have one feild which have input of email 
+            - when user submit it checks this email valid or not
+            - if valid then it take gmail and cretae one link that link is in string formate
+              and it contains email and expiry time in encrypt form with token and we go to reset password page  / reset password route 
+              only and only with that link;
+            - when user go to reset password page, user show one feild with new password reset button 
+            - if user password is same with old password we give alert "write another password" 
+            - if password reset successful them go to the login form
+
+    other than this system has admin role 
+    -> admin show
+       - which user login or reset password 
+       - which user currently active or inactive
+   
