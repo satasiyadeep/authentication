@@ -5,6 +5,13 @@ import { usermodel } from "../models/user.model.js";
 import jwt from "jsonwebtoken";
 import { error } from "console";
 
+interface JwtUser {
+  id: number;
+  email: string;
+  role: string;
+  // add other fields you put in the token here
+}
+
 const userController = {
   userRegister: async (req: Request, res: Response) => {
     try {
@@ -38,6 +45,7 @@ const userController = {
 
       //  const password_expiry_time=userdata[0]?.password_updated_at- (new Date())
 
+      // user login logic is apply
       if (userdata.length > 0) {
         // check password expiry
         const d1: any = new Date();
@@ -50,7 +58,7 @@ const userController = {
             .status(400)
             .json({ error: "password is expiry generate new password" });
         }
-          // password right or not check
+        // password right or not check
         const is_passwordvalid = await comparepasword(
           password,
           userdata[0]?.user_password,
@@ -64,12 +72,17 @@ const userController = {
             .status(400)
             .json({ error: "user lock due to many login attempts" });
         }
+
         //  token generation for login
         if (is_passwordvalid) {
           const tokenExpiry = rememberme ? "30d" : "1h";
 
           const token = jwt.sign(
-            { id: userdata[0].user_id, email: userdata[0].email },
+            {
+              id: userdata[0].user_id,
+              email: userdata[0].email,
+              role: userdata[0].role,
+            },
             String(process.env.JWT_SECRET),
             { expiresIn: tokenExpiry },
           );
@@ -81,12 +94,20 @@ const userController = {
           });
 
           // set remember me functionality
-            // reset login attempt 0 
+          // reset login attempt 0
 
-          login_attempt > 0 ? await usermodel.updateloginattempt([0,userdata[0].email]) : "";
-          
+          login_attempt > 0
+            ? await usermodel.updateloginattempt([0, userdata[0].email])
+            : "";
+
           // Now you can safely redirect directly from the backend
+          // if admin login
+          if (role === "admin") {
+            res.redirect(`/admin`);
+            return;
+          } else {
             res.redirect(`/user`);
+          }
         } else {
           // increment in user login attempt
           const new_login_attempt = login_attempt + 1;
@@ -114,19 +135,11 @@ const userController = {
   },
 
   userpage: async (req: Request, res: Response) => {
-
     try {
-      interface JwtUser {
-        id: number;
-        email: string;
-        // add other fields you put in the token here
-      }
-
       const user = req.user as JwtUser;
       const userEmail = user.email;
-      const [data] =  await usermodel.emailexist_only(userEmail)
-      if (data.length>0) {
-
+      const [data] = await usermodel.emailexist_only(userEmail);
+      if (data.length > 0 && user.role === "user") {
         return res.render("userpage", { userEmail });
       } else {
         res.redirect("/login");
@@ -142,8 +155,40 @@ const userController = {
     const encrypt_password = await generatehash(password);
     const data = [firstname, lastname, email, encrypt_password];
     const result = await usermodel.insertuser(data);
+
     // console.log(data);
     res.status(200).redirect("/login");
+  },
+
+  insertGoogleuser: async (req: Request, res: Response) => {
+    try {
+      console.log(req.user)
+      const { displayName, emails } = req.user as any;
+      const email = emails[0].value;
+      const [firstname, lastname] = displayName.split(" ");
+
+      if(!email || !displayName){
+        throw new Error("invalid google account data");
+      }
+
+       const [existingUser] = await usermodel.emailexist_only(email);
+       if(existingUser.length > 0){
+        // if user already exist then redirect to login page
+        return res.status(200).redirect("/login");
+       }
+
+        
+       
+
+      const encrypt_password = await generatehash(
+        process.env.GOOGLE_OAUTH_DEFAULT_PASSWORD || "default_google_password",
+      );
+      const data = [firstname, lastname, email, encrypt_password];
+      await usermodel.insertuser(data);
+      res.status(200).redirect("/login");
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
   },
 
   capchaloader: async (req: Request, res: Response) => {
@@ -249,6 +294,20 @@ const userController = {
       return res.render("succes_resetpassword");
     } catch (error: any) {
       res.send("error  " + error.message);
+    }
+  },
+  adminpage: async (req: Request, res: Response) => {
+    try {
+      const user = req.user as JwtUser;
+      if (user.role == "admin") {
+        return res.render("adminpage");
+      }
+      else{
+        res.redirect("/login");
+      }
+       
+    } catch (error) {
+      res.send("error  " + error);
     }
   },
 };

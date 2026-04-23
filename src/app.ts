@@ -6,7 +6,20 @@ import { fileURLToPath } from 'url';
 import { userRoute } from './routes/userRoutes.js';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
+import passport from "passport";
+import expressSession from "express-session";
+
+
+
 const app=express();
+app.use(
+  expressSession({
+    secret: 'sffws',
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
 app.use(cookieParser());
 dotenv.config();
 
@@ -20,6 +33,9 @@ const PORT = process.env.PORT || 3000 ;
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/', userRoute);
 
 

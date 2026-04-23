@@ -18,6 +18,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     const decoded = jwt.verify(token, String(process.env.JWT_SECRET));
     req.user = decoded;
     // console.log(decoded)
+    
     next();
   } catch (err: any) {
     res.clearCookie("token");
